@@ -14,27 +14,8 @@ before exiting.
 """
 
 import regex
-import signal
 import sys
-
-# Initialize the interrupt variable
-interrupt = False
-
-
-# Define the signal handler function
-def sigint(*args):
-    """
-    Signal handler for SIGINT (Ctrl+C).
-    Sets the interrupt variable to True to indicate that an interrupt
-    was received.
-    """
-    global interrupt
-    interrupt = True
-    return None
-
-
-# Set the signal handler for SIGINT
-signal.signal(signal.SIGINT, sigint)
+from collections import defaultdict
 
 # Compile the regex pattern for matching log lines
 line_match = regex.compile(
@@ -45,37 +26,37 @@ line_match = regex.compile(
 )
 
 # Initialize counters
-cycle = 0
 f_size = 0
-codes = {}
+codes = defaultdict(int)
+
+
+def print_statistics(f_size, codes):
+    print("File size: {:d}".format(f_size))
+    for key in sorted(codes.keys()):
+        print("{:d}: {:d}".format(key, codes[key]))
+
 
 # Read and process log lines from standard input
-while line := sys.stdin.readline():
-    match = line_match.match(line[:-1])
-    if not match:
-        continue
+try:
+    for i, line in enumerate(sys.stdin, 1):
+        match = line_match.match(line.strip())
+        if not match:
+            continue
 
-    # Update file size and response code counts
-    f_size += int(match.group("file_size"))
-    resp_code = int(match.group("resp_code"))
-    codes.update({resp_code: codes.setdefault(resp_code, 0) + 1})
+        # Update file size and response code counts
+        f_size += int(match.group("file_size"))
+        resp_code = int(match.group("resp_code"))
+        codes[resp_code] += 1
 
-    # Print statistics every 10 lines or on interrupt
-    if cycle == 9 or interrupt:
-        print("File size: {:d}".format(f_size), flush=True)
-        for key in sorted(codes.keys()):
-            print("{:d}: {:d}".format(key, codes[key]), flush=True)
-
-        # Reset counters
-        codes.clear()
-        f_size = 0
-        cycle = -1
-        if interrupt:
-            raise KeyboardInterrupt
-
-    cycle += 1
+        # Print statistics every 10 lines
+        if i % 10 == 0:
+            print_statistics(f_size, codes)
+            codes.clear()
+            f_size = 0
+except KeyboardInterrupt:
+    print_statistics(f_size, codes)
+    raise
 else:
-    if cycle != 9:
-        print("File size: {:d}".format(f_size), flush=True)
-        for key in sorted(codes.keys()):
-            print("{:d}: {:d}".format(key, codes[key]), flush=True)
+    # Print final statistics if the loop exits normally
+    if i % 10 != 0:
+        print_statistics(f_size, codes)
