@@ -74,3 +74,8 @@ while line := sys.stdin.readline():
             raise KeyboardInterrupt
 
     cycle += 1
+else:
+    if cycle != 9:
+        print("File size: {:d}".format(f_size), flush=True)
+        for key in sorted(codes.keys()):
+            print("{:d}: {:d}".format(key, codes[key]), flush=True)
