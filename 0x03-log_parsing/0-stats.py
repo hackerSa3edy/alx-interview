@@ -10,12 +10,11 @@ The script handles SIGINT (Ctrl+C) to gracefully print the statistics
 before exiting.
 """
 
-import regex
+import re
 import sys
-from collections import defaultdict
 
 # Compile the regex pattern for matching log lines
-line_match = regex.compile(
+line_match = re.compile(
     r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} - "
     r"\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6}\] "
     r"\"GET /projects/260 HTTP/1.1\" "
@@ -24,7 +23,7 @@ line_match = regex.compile(
 
 # Initialize counters
 f_size = 0
-codes = defaultdict(int)
+codes = {}
 
 
 def print_statistics(f_size, codes):
@@ -33,7 +32,8 @@ def print_statistics(f_size, codes):
 
     Args:
         f_size (int): The size of the file.
-        codes (dict): A dictionary where keys are HTTP status codes (int) and values are the counts (int) of each status code.
+        codes (dict): A dictionary where keys are HTTP status codes (int) and
+        values are the counts (int) of each status code.
 
     Returns:
         None
@@ -53,7 +53,7 @@ try:
         # Update file size and response code counts
         f_size += int(match.group("file_size"))
         resp_code = int(match.group("resp_code"))
-        codes[resp_code] += 1
+        codes[resp_code] = codes.setdefault(resp_code, 0) + 1
 
         # Print statistics every 10 lines
         if i % 10 == 0:
