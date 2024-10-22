@@ -71,15 +71,13 @@ def main():
             # Print statistics every 10 lines
             if i % 10 == 0:
                 print_statistics(f_size, codes)
-                codes.clear()
-                f_size = 0
+        else:
+            # Print final statistics if the loop exits normally
+            if i % 10 != 0:
+                print_statistics(f_size, codes)
     except KeyboardInterrupt:
         print_statistics(f_size, codes)
         raise
-    else:
-        # Print final statistics if the loop exits normally
-        if i % 10 != 0:
-            print_statistics(f_size, codes)
 
 
 if __name__ == "__main__":
