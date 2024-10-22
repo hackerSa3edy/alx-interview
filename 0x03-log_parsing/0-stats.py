@@ -80,3 +80,11 @@ def main():
         # Print final statistics if the loop exits normally
         if i % 10 != 0:
             print_statistics(f_size, codes)
+
+
+if __name__ == "__main__":
+    """
+    Entry point for the script. Calls the main function to start
+    processing log lines.
+    """
+    main()
