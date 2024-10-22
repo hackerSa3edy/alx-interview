@@ -6,9 +6,6 @@ This script reads log entries from the standard input and calculates
 statistics such as the total file size and the count of each
 HTTP response code.
 
-Usage:
-    python3 0-stats.py
-
 The script handles SIGINT (Ctrl+C) to gracefully print the statistics
 before exiting.
 """
@@ -31,6 +28,16 @@ codes = defaultdict(int)
 
 
 def print_statistics(f_size, codes):
+    """
+    Prints the file size and HTTP status code counts.
+
+    Args:
+        f_size (int): The size of the file.
+        codes (dict): A dictionary where keys are HTTP status codes (int) and values are the counts (int) of each status code.
+
+    Returns:
+        None
+    """
     print("File size: {:d}".format(f_size))
     for key in sorted(codes.keys()):
         print("{:d}: {:d}".format(key, codes[key]))
