@@ -28,7 +28,8 @@ def print_statistics(f_size, codes):
     """
     print("File size: {:d}".format(f_size))
     for key in sorted(codes.keys()):
-        print("{:d}: {:d}".format(key, codes[key]))
+        if codes[key] != 0:
+            print("{:d}: {:d}".format(key, codes[key]))
 
 
 def main():
@@ -49,12 +50,21 @@ def main():
         r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3} - "
         r"\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{6}\] "
         r"\"GET /projects/260 HTTP/1.1\" "
-        r"(?P<resp_code>200|301|400|401|403|404|405|500) (?P<file_size>\d+)$"
+        r"(?P<resp_code>\d{3}) (?P<file_size>\d+)$"
     )
 
     # Initialize counters
     f_size = 0
-    codes = {}
+    codes = {
+        200: 0,
+        301: 0,
+        400: 0,
+        401: 0,
+        403: 0,
+        404: 0,
+        405: 0,
+        500: 0
+    }
 
     # Read and process log lines from standard input
     try:
@@ -66,7 +76,8 @@ def main():
             # Update file size and response code counts
             f_size += int(match.group("file_size"))
             resp_code = int(match.group("resp_code"))
-            codes[resp_code] = codes.setdefault(resp_code, 0) + 1
+            if resp_code in codes:
+                codes[resp_code] += 1
 
             # Print statistics every 10 lines
             if i % 10 == 0:
