@@ -8,6 +8,12 @@ def isWinner(x, nums):
     """
     Prime Game Function
     """
+    if not nums or x <= 0 or len(nums) != x:
+        return None
+
+    if any(n < 1 for n in nums):
+        return None
+
     maria = 0
     ben = 0
 
